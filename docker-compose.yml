@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: doc-review-api
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./api:/app  # hot reload in dev; remove in prod

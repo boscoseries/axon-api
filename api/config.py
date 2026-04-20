@@ -1,0 +1,15 @@
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    groq_api_key: str = "testkey"
+    llm_model: str = "llama3-8b-8192"
+    api_key: str = "testkey"
+    app_env: str = "development"
+    max_file_size_mb: int = 10
+
+    class Config:
+        env_file = ".env"
+
+
+settings = Settings()
