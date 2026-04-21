@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    groq_api_key: str = "testkey"
+    groq_api_key: str
     llm_model: str = "llama3-8b-8192"
     api_key: str = "testkey"
     app_env: str = "development"

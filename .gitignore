@@ -2,3 +2,6 @@
 **/___pycache___
 **/*.pyc
 **/*.pyo
+*.env
+.env.*
+*.log

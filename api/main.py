@@ -58,7 +58,3 @@ async def root():
         "docs": "/docs",
         "health": "/api/health",
     }
-
-# @app.get("/home")
-# def get_home():
-#     return "Welcome to your homepage"
