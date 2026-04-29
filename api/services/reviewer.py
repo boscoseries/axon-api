@@ -31,7 +31,7 @@ SYSTEM_PROMPT = """
         "MALFORMED_BRACES": if there are stray "}}" or other broken brace patterns.
         "OTHER": if a placeholder uses correct syntax but the variable name is not in the allowed keys.
     - "invalid variable": the exact placeholder substring as it appears in the text
-    - "reason": a brief explanation of the issue
+    - "reason": a brief explanation of the issue. include the invalid variable in the reason for clarity.
     - "valid variable": the corrected placeholder string
 
     Output schema (MUST follow exactly):

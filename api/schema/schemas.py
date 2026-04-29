@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
 from enum import Enum
 
@@ -16,9 +16,9 @@ class IssueType(str, Enum):
 
 class Issue(BaseModel):
     type: str
-    found: str
-    suggested: str
+    invalid_variable: str = Field(alias="invalid variable")
     reason: str
+    valid_variable: str = Field(alias="valid variable")
 
 
 class ReviewResponse(BaseModel):
