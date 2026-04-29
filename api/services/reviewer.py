@@ -1,6 +1,5 @@
 from services.llm_client import chat
-from schema.schemas import ReviewResponse, Issue, IssueType, IssueSeverity
-from config import settings
+from schema.schemas import ReviewResponse
 from fastapi import HTTPException
 import json
 import logging
@@ -9,34 +8,61 @@ import re
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
-You are a professional document reviewer. Your job is to analyse documents for two things only:
-1. Completeness — are expected sections, fields, or content areas missing?
-2. Grammar & language errors — spelling mistakes, grammatical errors, unclear phrasing.
+    You are a strict validator for DOCX template placeholders.
 
-You must respond ONLY with a valid JSON object. No preamble, no explanation outside the JSON.
+    You will receive the full extracted text of a DOCX template. The template is expected to use Jinja-style placeholders of the form:
+    {{variable_name}}
+    
+    Input:
+    - Template text
+    - Allowed placeholder keys (comma-separated)
 
-The JSON must follow this exact structure:
-{
-  "score": <integer 0-100, overall document quality>,
-  "summary": "<one paragraph summary of the document quality>",
-  "issues": [
+    Valid placeholders:
+    - Any of the allowed keys wrapped in double curly braces, e.g. {{client_name}}, {{project_title}}.
+
+    Your job:
+    1) Determine whether the text contains any placeholder problems that would likely break Jinja/docxtpl rendering.
+    2) Output ONLY valid JSON (no markdown, no prose outside JSON).
+    3) If problems exist, list each problem with:
+    - "type": 
+        "SINGLE_BRACE": if a placeholder uses single braces, e.g. {client_name} instead of {{client_name}}.
+        "MISSING_CLOSING_BRACES": if a placeholder starts with "{{" but does not end with "}}".
+        "SPACE_IN_VARIABLE": if a placeholder contains spaces within the variable name.
+        "MALFORMED_BRACES": if there are stray "}}" or other broken brace patterns.
+        "OTHER": if a placeholder uses correct syntax but the variable name is not in the allowed keys.
+    - "found": the exact placeholder substring as it appears in the text
+    - "suggested": the corrected placeholder string
+    - "reason": a brief explanation of the issue
+
+    Output schema (MUST follow exactly):
     {
-      "type": "<grammar | completeness>",
-      "severity": "<low | medium | high>",
-      "detail": "<specific description of the issue>",
-      "location": "<where in the document, e.g. Paragraph 2, Section: Introduction>"
+    "has_issues": true|false,
+    "issues": [
+        {
+        "type": "...",
+        "found": "...",
+        "suggested": "...",
+        "reason": "...",
+        }
+    ]
     }
-  ]
-}
 
-Severity guide:
-- high: significantly impacts document usability or meaning
-- medium: noticeable issue that should be fixed
-- low: minor issue, stylistic or trivial
+    Hard rules:
+    - If the text is perfectly clean with no placeholder issues, return {"has_issues": false, "issues": []}.
+    - If the text has no placeholders at all, return {"has_issues": false, "issues": []}.
+    - "found" MUST be copied verbatim from the input text (exact substring).
+    - Do not invent placeholders not present in the input's Allowed placeholder keys.
+    - If has_issues is false, issues MUST be an empty array, [].
+    - Do not include duplicates (same "found" + same "type").
+    - If a placeholder is correct, do not list it.
 
-If the document has no issues, return an empty issues array and a score of 100.
-Do not invent issues. Only report what you actually find.
-""".strip()
+    Report these problems:
+    - SINGLE_BRACE: if a placeholder uses single braces, e.g. {client_name} instead of {{client_name}}.
+    - MISSING_CLOSING_BRACES: if a placeholder starts with "{{" but does not end with "}}".
+    - SPACE_IN_VARIABLE: if a placeholder contains spaces within the variable name.
+    - MALFORMED_BRACES: if there are stray "}}" or other broken brace patterns.
+    - OTHER: if a placeholder uses correct syntax but the variable name is not in the Allowed placeholder keys.
+    """.strip()
 
 
 def _truncate(text: str, max_chars: int = 12000) -> str:
@@ -68,15 +94,31 @@ def _parse_response(raw: str) -> dict:
         )
 
 
-async def review_document(text: str, filename: str) -> ReviewResponse:
+async def review_document(text: str, allowed_keys: str = None) -> ReviewResponse:
     """
     Core review function.
     Takes extracted plain text, sends to LLM, returns structured ReviewResponse.
     """
-    truncated_text = _truncate(text)
-    word_count = len(text.split())
 
-    user_message = f"Please review the following document:\n\n{truncated_text}"
+    if allowed_keys:
+        user_message = f"""
+            Validate placeholders in the following DOCX template text.
+
+            Template text:
+            {text}
+
+            Allowed placeholder keys:
+            {allowed_keys}
+
+            """.strip()
+    else:
+        user_message = f"""
+            Validate placeholders in the following DOCX template text.
+
+            Template text:
+            {text}
+
+            """.strip()
 
     raw_response = await chat(
         system_prompt=SYSTEM_PROMPT,
@@ -84,26 +126,4 @@ async def review_document(text: str, filename: str) -> ReviewResponse:
     )
 
     parsed = _parse_response(raw_response)
-
-    # Validate and coerce issues into our schema
-    issues = []
-    for item in parsed.get("issues", []):
-        try:
-            issues.append(Issue(
-                type=IssueType(item["type"]),
-                severity=IssueSeverity(item["severity"]),
-                detail=item["detail"],
-                location=item.get("location", "Unspecified"),
-            ))
-        except (KeyError, ValueError) as e:
-            logger.warning(f"Skipping malformed issue from LLM: {item} | error: {e}")
-            continue
-
-    return ReviewResponse(
-        score=int(parsed.get("score", 0)),
-        summary=parsed.get("summary", "No summary provided."),
-        issues=issues,
-        model_used=settings.llm_model,
-        document_name=filename,
-        word_count=word_count,
-    )
+    return ReviewResponse(**parsed)

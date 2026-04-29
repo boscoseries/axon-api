@@ -15,19 +15,15 @@ class IssueType(str, Enum):
 
 
 class Issue(BaseModel):
-    type: IssueType
-    severity: IssueSeverity
-    detail: str
-    location: str  # e.g. "Paragraph 2", "Section: Introduction", "Line 14"
+    type: str
+    found: str
+    suggested: str
+    reason: str
 
 
 class ReviewResponse(BaseModel):
-    score: int                  # 0–100 overall quality score
-    summary: str                # one-paragraph human-readable summary
+    has_issues: bool 
     issues: list[Issue]
-    model_used: str
-    document_name: str
-    word_count: int
 
 
 class HealthResponse(BaseModel):
