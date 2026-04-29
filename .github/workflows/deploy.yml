@@ -1,0 +1,25 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Push to server and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          HOST: ${{ secrets.PROD_HOST }}
+          USERNAME: ${{ secrets.PROD_USERNAME }}q
+          PORT: ${{ secrets.PORT }}
+          PASSWORD: ${{ secrets.PROD_PASSWORD }}
+          script: |
+            cd ${{ secrets.PROD_PATH }}
+            git pull origin develop
+            docker-compose up -d --build
+            docker system prune -a -f --filter "until=24h"

@@ -30,9 +30,9 @@ SYSTEM_PROMPT = """
         "SPACE_IN_VARIABLE": if a placeholder contains spaces within the variable name.
         "MALFORMED_BRACES": if there are stray "}}" or other broken brace patterns.
         "OTHER": if a placeholder uses correct syntax but the variable name is not in the allowed keys.
-    - "found": the exact placeholder substring as it appears in the text
-    - "suggested": the corrected placeholder string
+    - "invalid variable": the exact placeholder substring as it appears in the text
     - "reason": a brief explanation of the issue
+    - "valid variable": the corrected placeholder string
 
     Output schema (MUST follow exactly):
     {
@@ -40,9 +40,9 @@ SYSTEM_PROMPT = """
     "issues": [
         {
         "type": "...",
-        "found": "...",
-        "suggested": "...",
+        "invalid variable": "...",
         "reason": "...",
+        "valid variable": "...",
         }
     ]
     }
@@ -50,10 +50,10 @@ SYSTEM_PROMPT = """
     Hard rules:
     - If the text is perfectly clean with no placeholder issues, return {"has_issues": false, "issues": []}.
     - If the text has no placeholders at all, return {"has_issues": false, "issues": []}.
-    - "found" MUST be copied verbatim from the input text (exact substring).
+    - "invalid variable" MUST be copied verbatim from the input text (exact substring).
     - Do not invent placeholders not present in the input's Allowed placeholder keys.
     - If has_issues is false, issues MUST be an empty array, [].
-    - Do not include duplicates (same "found" + same "type").
+    - Do not include duplicates (same "invalid variable" + same "type").
     - If a placeholder is correct, do not list it.
 
     Report these problems:

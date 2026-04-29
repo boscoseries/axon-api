@@ -26,7 +26,7 @@ async def health():
     response_model=ModelsResponse,
     summary="List available models",
     description="Returns the models available on the current LLM provider.",
-    dependencies=[Depends(require_api_key)],
+    # dependencies=[Depends(require_api_key)],
 )
 async def models():
     return ModelsResponse(
