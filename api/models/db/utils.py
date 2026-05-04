@@ -50,6 +50,15 @@ def  log_count(endpoint: str) -> None:
             ExpressionAttributeNames={"#count": "count"},
             ExpressionAttributeValues={":inc": 1},
         )
+
+        # Increment all-time total
+        _counts_table.update_item(
+            Key={"endpoint": endpoint, "date": "ALL"},
+            UpdateExpression="ADD #count :inc",
+            ExpressionAttributeNames={"#count": "count"},
+            ExpressionAttributeValues={":inc": 1},
+        )
+
     except Exception as e:
         logger.error(f"DynamoDB count update failed | endpoint={endpoint} | error={e}")
 
