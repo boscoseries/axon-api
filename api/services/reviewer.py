@@ -87,10 +87,9 @@ def _parse_response(raw: str) -> dict:
     try:
         return json.loads(clean)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse LLM response as JSON: {e}\nRaw: {raw[:500]}")
         raise HTTPException(
             status_code=500,
-            detail="The review model returned an unexpected response format. Please try again."
+            detail=f"Failed to parse LLM response as JSON: {e}\nRaw: {raw[:500]}"
         )
 
 

@@ -1,8 +1,13 @@
+import asyncio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from services.notifier import SMTPErrorHandler, send_error_email
+from middlewares.requests import RequestLoggingMiddleware
 from routes import health, review
 from config import settings
 import logging, time
+
+
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -10,6 +15,7 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
 logger = logging.getLogger(__name__)
+logging.getLogger().addHandler(SMTPErrorHandler())
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -32,17 +38,7 @@ app.add_middleware(
 )
 
 # ── Request logging middleware ────────────────────────────────────────────────
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start = time.time()
-    response = await call_next(request)
-    duration_ms = round((time.time() - start) * 1000)
-    logger.info(
-        f"{request.method} {request.url.path} "
-        f"| status={response.status_code} "
-        f"| duration={duration_ms}ms"
-    )
-    return response
+app.add_middleware(RequestLoggingMiddleware)
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 app.include_router(health.router, prefix="/api", tags=["System"])
