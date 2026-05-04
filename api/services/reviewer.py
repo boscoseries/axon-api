@@ -1,5 +1,5 @@
 from services.llm_client import chat
-from schema.schemas import ReviewResponse
+from models.schema.schemas import ReviewResponse
 from fastapi import HTTPException
 import json
 import logging

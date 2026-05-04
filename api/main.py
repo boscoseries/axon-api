@@ -1,11 +1,14 @@
 import asyncio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from services.notifier import SMTPErrorHandler, send_error_email
+from services.notifier import SMTPErrorHandler
 from middlewares.requests import RequestLoggingMiddleware
 from routes import health, review
+from models.db.tables import create_tables_if_not_exist
 from config import settings
 import logging, time
+
+
 
 
 
@@ -28,6 +31,10 @@ app = FastAPI(
     docs_url="/docs",       # Swagger UI at /docs
     redoc_url="/redoc", 
 )
+
+@app.on_event("startup")
+async def startup():
+    create_tables_if_not_exist()
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(

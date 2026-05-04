@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     admin_emails: str = ""
 
+    # AWS / DynamoDB
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    aws_region: str = "us-east-1"
+
+    # Tables
+    dynamo_counts_table: str = "axon-request-counts"
+    dynamo_logs_table: str = "axon-request-logs"
+
     class Config:
         env_file = ".env"
 

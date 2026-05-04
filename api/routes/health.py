@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from middlewares.auth import require_api_key
 from services.llm_client import available_models
-from schema.schemas import HealthResponse, ModelsResponse
+from models.schema.schemas import HealthResponse, ModelsResponse
 from config import settings
 
 import logging
