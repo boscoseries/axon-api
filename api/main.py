@@ -22,10 +22,9 @@ logging.getLogger().addHandler(SMTPErrorHandler())
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="Document Review API",
+    title="AXON API",
     description=(
-        "A production-grade API that uses an LLM to review documents for "
-        "completeness and grammar issues. Accepts PDF, DOCX, and plain text."
+        "A multi-provider AI API platform with pluggable model backends, exposing multiple AI services such as document review, summarization, and more. Designed for extensibility and ease of integration."
     ),
     version="1.0.0",
     docs_url="/docs",       # Swagger UI at /docs
@@ -56,7 +55,7 @@ app.include_router(review.router, prefix="/api", tags=["Review"])
 @app.get("/home", include_in_schema=False)
 async def root():
     return {
-        "service": "Document Review API",
+        "service": "AXON API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/api/health",
