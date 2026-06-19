@@ -4,7 +4,7 @@
 
 Built with **FastAPI**, **Python 3.12**, and **Docker**. Swap LLM providers with a single environment variable — no code changes needed.
 
-**Production docs:** [api.axon.zonetechpark.com/docs](https://api.axon.zonetechpark.com/docs)
+**Production docs:** [View docs](https://api.axon.zonetechpark.com/docs)
 
 ---
 
