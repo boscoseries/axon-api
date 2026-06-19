@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from middlewares.auth import require_api_key
-from services.llm_client import available_models
-from models.schema.schemas import HealthResponse, ModelsResponse
+from services.llm_client import parse_model, get_provider_map
+from models.schema.schemas import HealthResponse, ModelsResponse, ActiveModelResponse
 from config import settings
 
 import logging
@@ -28,13 +28,23 @@ async def health():
     "/models",
     response_model=ModelsResponse,
     summary="List available models",
-    description="Returns the models available on the current LLM provider.",
-    # dependencies=[Depends(require_api_key)],
+    description="Returns the models available on the active provider (read from LLM_MODEL env var).",
 )
 async def models():
-    return ModelsResponse(
-        provider="groq",
-        models=available_models(),
+    return ModelsResponse(providers=get_provider_map())
+
+
+@router.get(
+    "/models/active",
+    response_model=ActiveModelResponse,
+    summary="Active model",
+    description="Returns the currently configured model and provider.",
+)
+async def active_model():
+    provider, _ = parse_model(settings.llm_model)
+    return ActiveModelResponse(
+        model=settings.llm_model,
+        provider=provider,
     )
 
 

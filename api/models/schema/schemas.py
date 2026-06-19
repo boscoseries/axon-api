@@ -33,5 +33,20 @@ class HealthResponse(BaseModel):
 
 
 class ModelsResponse(BaseModel):
+    providers: dict[str, list[str]]
+
+
+class ActiveModelResponse(BaseModel):
+    model: str
     provider: str
-    models: list[str]
+
+
+class MedicalQueryRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
+
+class MedicalQueryResponse(BaseModel):
+    answer: str
+    sources: list[str]
+    chunks_used: int

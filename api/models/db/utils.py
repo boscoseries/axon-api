@@ -63,6 +63,27 @@ def  log_count(endpoint: str) -> None:
         logger.error(f"DynamoDB count update failed | endpoint={endpoint} | error={e}")
 
 
+def check_and_increment_free_tier(ip: str, limit: int) -> bool:
+    """
+    Atomically increments the free-tier request count for an IP.
+    Returns True if the request is within the limit, False if exceeded.
+    Fails open (returns True) if DynamoDB is unreachable.
+    """
+    try:
+        response = _counts_table.update_item(
+            Key={"endpoint": f"free:{ip}", "date": "FREE_TIER"},
+            UpdateExpression="ADD #count :inc",
+            ExpressionAttributeNames={"#count": "count"},
+            ExpressionAttributeValues={":inc": 1},
+            ReturnValues="UPDATED_NEW",
+        )
+        new_count = int(response["Attributes"]["count"])
+        return new_count <= limit
+    except Exception as e:
+        logger.error(f"Free tier check failed | ip={ip} | error={e}")
+        return True  # fail open — don't block if DB is down
+
+
 def log_request(
     endpoint: str,
     provider: str = None,
