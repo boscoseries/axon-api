@@ -14,10 +14,10 @@ jobs:
       - name: Push to server and deploy
         uses: appleboy/ssh-action@master
         with:
-          HOST: ${{ secrets.PROD_HOST }}
-          USERNAME: ${{ secrets.PROD_USERNAME }}q
-          PORT: ${{ secrets.PORT }}
-          PASSWORD: ${{ secrets.PROD_PASSWORD }}
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          port: 22
+          password: ${{ secrets.PROD_PASSWORD }}
           script: |
             cd ${{ secrets.PROD_PATH }}
             git pull origin develop
