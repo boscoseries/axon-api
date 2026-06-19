@@ -24,7 +24,10 @@ logging.getLogger().addHandler(SMTPErrorHandler())
 app = FastAPI(
     title="AXON API",
     description=(
-        "A multi-provider AI API platform with pluggable model backends, exposing multiple AI services such as document review, summarization, and more. Designed for extensibility and ease of integration."
+        "A multi-provider AI API platform with pluggable model backends (Groq, OpenAI, Anthropic). "
+        "Exposes document review for DOCX template validation and a medical RAG pipeline — "
+        "query a Pinecone knowledge base with semantic search and get grounded, source-attributed answers. "
+        "First 3 requests on the RAG endpoint are free per IP; API key required beyond that."
     ),
     version="1.0.0",
     docs_url="/docs",       # Swagger UI at /docs
