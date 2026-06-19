@@ -32,6 +32,8 @@ async def require_api_key_or_free_tier(
         return api_key
 
     from models.db.utils import check_and_increment_free_tier
+    from services.notifier import send_notification_email
+
     ip = request.client.host
     allowed = await asyncio.to_thread(
         check_and_increment_free_tier, ip, settings.free_requests_limit
@@ -42,4 +44,17 @@ async def require_api_key_or_free_tier(
             detail=f"Free tier limit of {settings.free_requests_limit} requests exceeded. "
                    "Pass your API key in the X-API-Key header to continue.",
         )
+
+    try:
+        body = await request.json()
+        query = body.get("query", "(no query)")
+    except Exception:
+        query = "(could not parse body)"
+
+    asyncio.create_task(asyncio.to_thread(
+        send_notification_email,
+        subject="Free Tier Request",
+        body=f"IP Address: {ip}\nQuery:      {query}",
+    ))
+
     return None

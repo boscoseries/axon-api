@@ -50,6 +50,42 @@ def send_error_email(subject: str, body: str) -> None:
         logger.warning(f"[notifier] Failed to send error email: {e}")
 
 
+def send_notification_email(subject: str, body: str) -> None:
+    """
+    Send a plain notification email (not an error alert).
+    Subject prefix is [Axon API] instead of [Axon API Error].
+    """
+    admin_emails = settings.admin_emails.split(",")[0]
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[Axon API] {subject}"
+        msg["From"] = settings.smtp_from
+        msg["To"] = admin_emails
+
+        text_part = MIMEText(body, "plain")
+        html_body = f"""
+        <html>
+          <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2 style="color: #2563eb;">Axon API — Notification</h2>
+            <pre style="background:#f3f4f6; padding:16px; border-radius:6px; font-size:13px;">{body}</pre>
+          </body>
+        </html>
+        """
+        html_part = MIMEText(html_body, "html")
+        msg.attach(text_part)
+        msg.attach(html_part)
+
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(settings.smtp_user, settings.smtp_password)
+            server.sendmail(settings.smtp_from, admin_emails, msg.as_string())
+
+    except Exception as e:
+        logger.warning(f"[notifier] Failed to send notification email: {e}")
+
+
 class SMTPErrorHandler(logging.Handler):
     """
     Attaches to the root logger.
