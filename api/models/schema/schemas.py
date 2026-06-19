@@ -42,7 +42,7 @@ class ActiveModelResponse(BaseModel):
 
 
 class MedicalQueryRequest(BaseModel):
-    query: str
+    query: str = Field(..., description="What are the available treatment options and management strategies for chronic kidney disease??")
     top_k: int = 5
 
 
