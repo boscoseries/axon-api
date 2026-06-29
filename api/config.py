@@ -5,9 +5,9 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     openai_api_key: str = ""
     anthropic_api_key: str = ""
-    llm_model: str = "groq/llama3-70b-8192"
+    llm_model: str = ""
     llm_available_models: str = (
-        "groq/llama3-8b-8192,groq/llama3-70b-8192,groq/mixtral-8x7b-32768,"
+        "groq/llama3-8b-8192,groq/mixtral-8x7b-32768,"
         "openai/gpt-4o,openai/gpt-4o-mini,openai/gpt-oss-120b,"
         "anthropic/claude-opus-4-8,anthropic/claude-sonnet-4-6,anthropic/claude-haiku-4-5-20251001"
     )

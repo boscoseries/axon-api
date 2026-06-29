@@ -32,7 +32,12 @@ SYSTEM_PROMPT = """
         "OTHER": if a placeholder uses correct syntax but the variable name is not in the allowed keys.
     - "invalid variable": the exact placeholder substring as it appears in the text
     - "reason": a brief explanation of the issue. include the invalid variable in the reason for clarity.
-    - "valid variable": the corrected placeholder string
+    - "valid variable": the corrected placeholder string. MUST always be a string, never null:
+        - SINGLE_BRACE → wrap with double braces, e.g. {client_name} → {{client_name}}
+        - MISSING_CLOSING_BRACES → append the missing "}}", e.g. {{client_name → {{client_name}}
+        - SPACE_IN_VARIABLE → replace spaces with underscores, e.g. {{client name}} → {{client_name}}
+        - MALFORMED_BRACES → if stray "}}" with no matching "{{", the correction is "" (empty string); if a variable has broken surrounding braces, show the fully corrected form
+        - OTHER → suggest the closest matching allowed key wrapped in double braces, or "" if no match exists
 
     Output schema (MUST follow exactly):
     {
@@ -60,7 +65,7 @@ SYSTEM_PROMPT = """
     - SINGLE_BRACE: if a placeholder uses single braces, e.g. {client_name} instead of {{client_name}}.
     - MISSING_CLOSING_BRACES: if a placeholder starts with "{{" but does not end with "}}".
     - SPACE_IN_VARIABLE: if a placeholder contains spaces within the variable name.
-    - MALFORMED_BRACES: if there are stray "}}" or other broken brace patterns.
+    - MALFORMED_BRACES: if there are stray "}}" or other broken brace patterns. Always provide a correction in "valid variable" — use "" if the stray braces should simply be removed.
     - OTHER: if a placeholder uses correct syntax but the variable name is not in the Allowed placeholder keys.
     """.strip()
 
