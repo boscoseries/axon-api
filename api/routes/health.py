@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from middlewares.auth import require_api_key
-from services.llm_client import parse_model, get_provider_map
+from services.llm_client import parse_model, get_provider_map, get_active_model
 from models.schema.schemas import HealthResponse, ModelsResponse, ActiveModelResponse
 from config import settings
 
@@ -19,7 +19,7 @@ router = APIRouter()
 async def health():
     return HealthResponse(
         status="ok",
-        model=settings.llm_model,
+        model=get_active_model(),
         environment=settings.app_env,
     )
 
@@ -41,9 +41,10 @@ async def models():
     description="Returns the currently configured model and provider.",
 )
 async def active_model():
-    provider, _ = parse_model(settings.llm_model)
+    active = get_active_model()
+    provider, _ = parse_model(active)
     return ActiveModelResponse(
-        model=settings.llm_model,
+        model=active,
         provider=provider,
     )
 

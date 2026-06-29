@@ -21,5 +21,5 @@ jobs:
           script: |
             cd ${{ secrets.PROD_PATH }}
             git pull origin develop
-            docker-compose up -d --build
+            docker-compose -f docker-compose.prod.yml up -d --build
             docker system prune -a -f --filter "until=24h"

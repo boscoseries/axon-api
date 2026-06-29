@@ -10,8 +10,4 @@ services:
       - "8082:8082"
     env_file:
       - .env
-    environment:
-      - WATCHFILES_FORCE_POLLING=true
     restart: unless-stopped
-    volumes:
-      - ./api:/app  # hot reload in dev;

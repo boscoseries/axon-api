@@ -6,11 +6,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     llm_model: str = ""
-    llm_available_models: str = (
-        "groq/llama3-8b-8192,groq/mixtral-8x7b-32768,"
-        "openai/gpt-4o,openai/gpt-4o-mini,openai/gpt-oss-120b,"
-        "anthropic/claude-opus-4-8,anthropic/claude-sonnet-4-6,anthropic/claude-haiku-4-5-20251001"
-    )
+    llm_available_models: str = ""
     api_key: str = "testkey"
     app_env: str = "development"
     max_file_size_mb: int = 10
