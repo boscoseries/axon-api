@@ -42,7 +42,11 @@ class ActiveModelResponse(BaseModel):
 
 
 class MedicalQueryRequest(BaseModel):
-    query: str = Field(..., description="What are the available treatment options and management strategies for chronic kidney disease??")
+    query: str = Field(
+        ...,
+        description="Free-text medical question to answer using the RAG knowledge base.",
+        examples=["What are the available treatment options and management strategies for chronic kidney disease?"],
+    )
     top_k: int = 5
 
 
