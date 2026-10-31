@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     dynamo_logs_table: str = "axon-request-logs"
 
     free_requests_limit: int = 3
+    # longest text sent to the model for a summary (about 4 characters a token); longer is cut
+    summary_max_chars: int = 60000
 
     # Pinecone / RAG
     pinecone_api_key: str = ""
