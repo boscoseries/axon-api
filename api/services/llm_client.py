@@ -55,7 +55,7 @@ def _is_fatal_model_error(e: Exception) -> bool:
     return any(code in msg for code in _FATAL_MODEL_ERRORS)
 
 
-def _openai_compat_chat(client, model: str, system_prompt: str, user_message: str) -> str:
+def _openai_compat_chat(client, model: str, system_prompt: str, user_message: str, max_tokens: int = 2048) -> str:
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -63,28 +63,28 @@ def _openai_compat_chat(client, model: str, system_prompt: str, user_message: st
             {"role": "user", "content": user_message},
         ],
         temperature=0.5,
-        max_tokens=2048,
+        max_tokens=max_tokens,
     )
     logger.info(f"Response received | tokens_used={response.usage.total_tokens}")
     return response.choices[0].message.content
 
 
-def _call_model(model_str: str, system_prompt: str, user_message: str) -> str:
+def _call_model(model_str: str, system_prompt: str, user_message: str, max_tokens: int = 2048) -> str:
     provider, model = parse_model(model_str)
 
     if provider == "groq":
         client = Groq(api_key=settings.groq_api_key)
-        return _openai_compat_chat(client, model, system_prompt, user_message)
+        return _openai_compat_chat(client, model, system_prompt, user_message, max_tokens)
 
     elif provider == "openai":
         client = OpenAI(api_key=settings.openai_api_key)
-        return _openai_compat_chat(client, model, system_prompt, user_message)
+        return _openai_compat_chat(client, model, system_prompt, user_message, max_tokens)
 
     elif provider == "anthropic":
         client = Anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.create(
             model=model,
-            max_tokens=2048,
+            max_tokens=max_tokens,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
@@ -95,7 +95,7 @@ def _call_model(model_str: str, system_prompt: str, user_message: str) -> str:
         raise ValueError(f"Unknown provider '{provider}'. Use groq/, openai/, or anthropic/ prefix in LLM_MODEL.")
 
 
-async def chat(system_prompt: str, user_message: str) -> str:
+async def chat(system_prompt: str, user_message: str, max_tokens: int = 2048) -> str:
     """
     Send a prompt to the configured LLM and return the response text.
 
@@ -115,7 +115,7 @@ async def chat(system_prompt: str, user_message: str) -> str:
     for model_str in models_to_try:
         logger.info(f"Sending request | model={model_str}")
         try:
-            result = _call_model(model_str, system_prompt, user_message)
+            result = _call_model(model_str, system_prompt, user_message, max_tokens)
             if model_str != current:
                 logger.error(f"Auto-switched active model: {current} → {model_str}")
                 set_active_model(model_str)
