@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from services.notifier import SMTPErrorHandler
 from middlewares.requests import RequestLoggingMiddleware
-from routes import health, review, medical, summarize, ask, flashcards, quiz, assessment
+from routes import health, review, medical, summarize, ask, flashcards, quiz, assessment, course_copy
 from models.db.tables import create_tables_if_not_exist
 from config import settings
 import logging, time
@@ -58,6 +58,7 @@ app.include_router(ask.router, prefix="/api", tags=["Ask"])
 app.include_router(flashcards.router, prefix="/api", tags=["Flashcards"])
 app.include_router(quiz.router, prefix="/api", tags=["Quiz"])
 app.include_router(assessment.router, prefix="/api", tags=["Assessment"])
+app.include_router(course_copy.router, prefix="/api", tags=["Course copy"])
 
 
 # ── Root ──────────────────────────────────────────────────────────────────────

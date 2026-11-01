@@ -148,3 +148,18 @@ class AssessmentQuestion(BaseModel):
 
 class AssessmentQuestionsResponse(BaseModel):
     questions: list[AssessmentQuestion]
+
+
+class CourseCopyRequest(BaseModel):
+    title: str
+    outline: str = Field(..., min_length=1, description="The course's modules and lessons (with what the lessons say), the only facts the copy may use.")
+    level: str | None = None
+    category: str | None = None
+    current_description: str | None = None
+    current_summary: str | None = None
+    tone: Literal["professional", "friendly", "concise"] = "professional"
+
+
+class CourseCopyResponse(BaseModel):
+    description: str
+    summary: str
