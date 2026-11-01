@@ -120,3 +120,31 @@ class QuizQuestion(BaseModel):
 
 class QuizResponse(BaseModel):
     questions: list[QuizQuestion]
+
+
+class ExtractResponse(BaseModel):
+    text: str
+
+
+class AssessmentQuestionsRequest(BaseModel):
+    material: str = Field(..., min_length=1, description="The only text the questions may come from.")
+    title: str | None = None
+    count: int = Field(5, ge=1, le=30)
+    difficulty: Literal["easy", "medium", "hard"] = "medium"
+    question_type: Literal["single", "multiple", "mixed"] = "single"
+
+
+class AssessmentOption(BaseModel):
+    value: str
+    is_correct: bool
+
+
+class AssessmentQuestion(BaseModel):
+    question: str
+    question_type: Literal["single", "multiple"]
+    options: list[AssessmentOption]
+    explanation: str | None = None
+
+
+class AssessmentQuestionsResponse(BaseModel):
+    questions: list[AssessmentQuestion]

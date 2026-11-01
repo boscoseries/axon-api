@@ -16,7 +16,7 @@ SYSTEM_PROMPT = """
     Rules:
     - Use only what the text says. Do not add facts, examples or advice that are not in it.
     - "summary": a clear summary of the whole lesson, from start to finish. Make it as long as it needs to be to cover everything important; do not cut it short and do not pad it.
-    - "key_points": every distinct key point the lesson makes (ideas, definitions, steps, figures, examples worth remembering), one sentence each, in the order they appear. Do not leave any out.
+    - "key_points": the main points of the lesson, in the order they appear, each a complete, self-contained sentence a learner could read on its own. Group related details into one point instead of listing each detail separately: for example, the rules, steps or parts of one idea become a single point that names them, not one line per rule. Usually 6 to 12 points; use more only if the lesson really makes that many separate main points. Do not leave out an important idea, and do not split one idea across several points.
     - Write in the same language as the text, in plain words.
     - If the text is too short or empty of content to summarise, return an empty summary and an empty key_points list.
     - Output ONLY valid JSON, no markdown and no prose outside it.
