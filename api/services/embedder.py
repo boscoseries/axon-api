@@ -16,7 +16,7 @@ def _normalize(v: list[float]) -> list[float]:
 def _mean_pool(token_embeddings: list[list[float]]) -> list[float]:
     n = len(token_embeddings)
     dim = len(token_embeddings[0])
-    return [sum(token_embeddings[j][i] for j in range(n)) / n for i in range(dim)]
+    return [sum(token_embeddings[j][i] for j in range(n)) / (n - 1) for i in range(dim)]
 
 
 async def embed(text: str) -> list[float]:
